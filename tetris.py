@@ -20,7 +20,7 @@ class Block:
                   [[0, 0], [-1, 0], [0, 1], [-1, 1]]] # square
         
         self.block_type = block_type
-        self.shape = copy.copy(self.shapes[block_type])
+        self.shape = copy.deepcopy(self.shapes[block_type])
         self.row = 1 # initial position
         self.col = 5
         self.level = 0
