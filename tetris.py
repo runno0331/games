@@ -1,3 +1,6 @@
+# 実行時　python3 tetris.py
+# pygameは適宜入れてください
+
 import pygame
 from pygame.locals import *
 import sys
@@ -27,7 +30,7 @@ class Block:
         self.drop_rate = [60, 50, 45, 42, 39, 36, 35, 34, 33, 32, 31, 
                           30, 29, 28, 27, 26, 25, 24, 23, 22, 21, 
                           20, 19, 18, 17, 16, 15, 14, 13, 12, 11, 
-                          10,  9,  8,  7,  6,  5,  4,  3,  2,  1]
+                          10,  9,  8,  7,  6,  5,  4,  3,  2,  1, 0]
         self.count = 60
         self.hold_flag = True
     
@@ -147,7 +150,7 @@ class Record:
         self.level_up = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, # 0 to 9 level
                          57, 64, 71, 78, 85, 92, 99, 106, 113, 120, # 10 to 19
                          130, 140, 150, 160, 170, 180, 190, 200, 210, 220, # 20 to 29
-                         240, 260, 280, 300, 320, 340, 360, 380, 400, 420] # 30 to 39
+                         240, 260, 280, 300, 320, 340, 360, 380, 400, 420, 1000] # 30 to 40
         
     def update(self, count):
         self.score += self.score_table[count]*(self.level+1)
@@ -173,18 +176,54 @@ class Record:
         screen.blit(text3, [500, 420])
         screen.blit(score, [600, 480])
         
-# ゲームボードの描画
-# 入力　スクリーン、ゲームボード、ブロックの色
-# 出力　なし
-def draw_board(screen, board, block_color):
-    for row in range(2, MAX_ROW+3):
-        for col in range(MAX_COL+2):
-            pygame.draw.rect(screen, (0, 0, 0), Rect(30+35*col, 30+35*(row-2), 35, 35))
-            if board[row][col] < 2:
-                pygame.draw.rect(screen, block_color[board[row][col]], Rect(31+35*col, 31+35*(row-2), 34, 34)) 
-            else:
-                pygame.draw.rect(screen, block_color[board[row][col]], Rect(32+35*col, 32+35*(row-2), 31, 31))
+def start(screen):
+    font1 = pygame.font.Font(None, 150)
+    title = font1.render("TETRIS", True, (255, 255, 255))
+    font2 = pygame.font.Font(None, 50)
+    text = font2.render("Press key to start", True, (255, 255, 255))
 
+    screen.blit(title, [100, 100])
+    screen.blit(text, [100, 300])
+    
+    pygame.draw.rect(screen, (255, 255, 255), Rect(510, 300, 390, 400), 3)
+    pygame.draw.rect(screen, (0, 0, 0), Rect(550, 290, 310, 40))
+    
+    font1 = pygame.font.Font(None, 80)
+    text1 = font1.render("COMMAND", True, (255, 255, 255))
+    screen.blit(text1, [550, 275])
+    font3 = pygame.font.Font(None, 40)
+    text2 = font3.render("Arrow DOWN: Move down", True, (255, 255, 255))
+    screen.blit(text2, [540, 350])
+    text2 = font3.render("Arrow LEFT: Move left", True, (255, 255, 255))
+    screen.blit(text2, [540, 390])
+    text2 = font3.render("Arrow RIGHT: Move right", True, (255, 255, 255))
+    screen.blit(text2, [540, 430])
+    text2 = font3.render("Arrow UP: Move bottom", True, (255, 255, 255))
+    screen.blit(text2, [540, 470])
+    text2 = font3.render("A:  Rotate anticlockwise", True, (255, 255, 255))
+    screen.blit(text2, [540, 510])
+    text2 = font3.render("S:  Rotate clockwise", True, (255, 255, 255))
+    screen.blit(text2, [540, 550])
+    text2 = font3.render("D:  Hold", True, (255, 255, 255))
+    screen.blit(text2, [540, 590])
+    text2 = font3.render("P:  Pause", True, (255, 255, 255))
+    screen.blit(text2, [540, 630])
+    
+    pygame.display.update()
+    
+    while(1):
+        pygame.time.wait(50)
+        for event in pygame.event.get():
+            if event.type == QUIT:
+                pygame.quit()
+                sys.exit()
+                
+            if event.type == KEYDOWN:
+                if event.key == K_ESCAPE:
+                    pygame.quit()
+                    sys.exit()
+                return
+            
 # ブロック、次ブロック、ボード、記録の初期化
 def initialize_game():
     board = [[0 for i in range(MAX_COL+2)] for j in range(MAX_ROW+3)]
@@ -247,7 +286,6 @@ def delete_row(screen, board, row_number, block_color):
         for row in reversed(range(2, deleting_row+1)):
             for col in range(1, MAX_COL+1):
                 board[row][col] = board[row-1][col]
-
 # ゲームオーバー処理
 def gameover(screen, record):
     screen.fill((0, 0, 0))
@@ -293,30 +331,7 @@ def gameover(screen, record):
 
                 if event.key == K_r:
                     return
-
-def start(screen):
-    font1 = pygame.font.Font(None, 150)
-    title = font1.render("TETRIS", True, (255, 255, 255))
-    font2 = pygame.font.Font(None, 50)
-    text = font2.render("Press key to start", True, (255, 255, 255))
-
-    screen.blit(title, [100, 100])
-    screen.blit(text, [100, 300])
-    pygame.display.update()
-    
-    while(1):
-        pygame.time.wait(50)
-        for event in pygame.event.get():
-            if event.type == QUIT:
-                pygame.quit()
-                sys.exit()
                 
-            if event.type == KEYDOWN:
-                if event.key == K_ESCAPE:
-                    pygame.quit()
-                    sys.exit()
-                return
-            
 def pause(screen, board, block_color):
     pygame.draw.rect(screen, (50, 50, 50), Rect(65, 32, 35*MAX_COL, 35*MAX_ROW))
     font1 = pygame.font.Font(None, 100)
@@ -343,21 +358,32 @@ def pause(screen, board, block_color):
                     pygame.display.update()
                     return
 
-def draw_next(screen, block, block_color):
-    pygame.draw.rect(screen, (255, 255, 255), Rect(500, 30, 150, 150))
-    pygame.draw.rect(screen, (0, 0, 0), Rect(505, 35, 140, 140))
-    pygame.draw.rect(screen, (0, 0, 0), Rect(520, 30, 70, 10))
-    font = pygame.font.Font(None, 30)
-    text = font.render("NEXT", True, (255, 255, 255))
-    screen.blit(text, [530, 20])
-    for dx in block.shape:
-        if block.block_type == 2 or block.block_type == 8:
-            pygame.draw.rect(screen, (20, 20, 20), Rect(550+25*dx[1], 105+25*dx[0], 25, 25))
-            pygame.draw.rect(screen, block_color[block.block_type], Rect(552+25*dx[1], 107+25*dx[0], 21, 21))
-        else:
-            pygame.draw.rect(screen, (20, 20, 20), Rect(562+25*dx[1], 105+25*dx[0], 25, 25))
-            pygame.draw.rect(screen, block_color[block.block_type], Rect(564+25*dx[1], 107+25*dx[0], 21, 21))
-            
+def pause(screen, board, block_color):
+    pygame.draw.rect(screen, (50, 50, 50), Rect(65, 32, 35*MAX_COL, 35*MAX_ROW))
+    font1 = pygame.font.Font(None, 100)
+    text1 = font1.render("PAUSE", True, (255, 255, 255))
+    font2 = pygame.font.Font(None, 30)
+    text2 = font2.render("Press P to resume", True, (255, 255, 255))
+    screen.blit(text1, [120, 200])
+    screen.blit(text2, [120, 300])
+    pygame.display.update()
+    
+    while(1):
+        pygame.time.wait(50)
+        for event in pygame.event.get():
+            if event.type == QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == KEYDOWN:
+                if event.key == K_ESCAPE:
+                    pygame.quit()
+                    sys.exit()
+
+                if event.key == K_p:
+                    draw_board(screen, board, block_color)
+                    pygame.display.update()
+                    return
+
 def hold(block, next_block, hold_block, record):
     # no block in hold
     if hold_block == None:
@@ -397,6 +423,33 @@ def draw_hold(screen, hold_block, block_color):
                 pygame.draw.rect(screen, (20, 20, 20), Rect(762+25*dx[1], 105+25*dx[0], 25, 25))
                 pygame.draw.rect(screen, block_color[hold_block.block_type], Rect(764+25*dx[1], 107+25*dx[0], 21, 21))
                 
+def draw_next(screen, block, block_color):
+    pygame.draw.rect(screen, (255, 255, 255), Rect(500, 30, 150, 150))
+    pygame.draw.rect(screen, (0, 0, 0), Rect(505, 35, 140, 140))
+    pygame.draw.rect(screen, (0, 0, 0), Rect(520, 30, 70, 10))
+    font = pygame.font.Font(None, 30)
+    text = font.render("NEXT", True, (255, 255, 255))
+    screen.blit(text, [530, 20])
+    for dx in block.shape:
+        if block.block_type == 2 or block.block_type == 8:
+            pygame.draw.rect(screen, (20, 20, 20), Rect(550+25*dx[1], 105+25*dx[0], 25, 25))
+            pygame.draw.rect(screen, block_color[block.block_type], Rect(552+25*dx[1], 107+25*dx[0], 21, 21))
+        else:
+            pygame.draw.rect(screen, (20, 20, 20), Rect(562+25*dx[1], 105+25*dx[0], 25, 25))
+            pygame.draw.rect(screen, block_color[block.block_type], Rect(564+25*dx[1], 107+25*dx[0], 21, 21))
+        
+# ゲームボードの描画
+# 入力　スクリーン、ゲームボード、ブロックの色
+# 出力　なし
+def draw_board(screen, board, block_color):
+    for row in range(2, MAX_ROW+3):
+        for col in range(MAX_COL+2):
+            pygame.draw.rect(screen, (0, 0, 0), Rect(30+35*col, 30+35*(row-2), 35, 35))
+            if board[row][col] < 2:
+                pygame.draw.rect(screen, block_color[board[row][col]], Rect(31+35*col, 31+35*(row-2), 34, 34)) 
+            else:
+                pygame.draw.rect(screen, block_color[board[row][col]], Rect(32+35*col, 32+35*(row-2), 31, 31))
+                
 def main():
     pygame.init()
     screen = pygame.display.set_mode((1000, 800))
@@ -424,8 +477,7 @@ def main():
             block.move(board, 1)
         if pressed_key[K_l]:
             block.move(board, 2)
-        
-        
+         
         bottom_flag = block.drop(screen, board)
         block.draw(screen, block_color, board)
         record.show(screen)
