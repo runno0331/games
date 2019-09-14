@@ -44,6 +44,7 @@ class Block:
             self.col +=1
         elif direction == 3:
             self.row += self.bottom(board)
+            self.count = 60
             
     def bottom(self, board): #
         direction = [1, 0]
@@ -147,10 +148,10 @@ class Record:
         self.score = 0
         self.level = 0
         self.score_table = [0, 80, 100, 300, 1200]
-        self.level_up = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, # 0 to 9 level
-                         57, 64, 71, 78, 85, 92, 99, 106, 113, 120, # 10 to 19
-                         130, 140, 150, 160, 170, 180, 190, 200, 210, 220, # 20 to 29
-                         240, 260, 280, 300, 320, 340, 360, 380, 400, 420, 1000] # 30 to 40
+        self.level_up = [2, 5, 8, 12, 16, 20, 25, 30, 35, 40, # level 0 to 9
+                         46, 52, 58, 64, 70, 77, 84, 91, 98, 105, # level 10 to 19
+                         112, 120, 128, 136, 144, 152, 160, 168, 177, 186, # level 20 to 29
+                         195, 204, 213, 222, 231, 240, 255, 270, 285, 300, 1000] # 30 to 40
         
     def update(self, count):
         self.score += self.score_table[count]*(self.level+1)
@@ -180,7 +181,7 @@ def start(screen):
     font1 = pygame.font.Font(None, 150)
     title = font1.render("TETRIS", True, (255, 255, 255))
     font2 = pygame.font.Font(None, 50)
-    text = font2.render("Press key to start", True, (255, 255, 255))
+    text = font2.render("Press ENTER to start", True, (255, 255, 255))
 
     screen.blit(title, [100, 100])
     screen.blit(text, [100, 300])
@@ -222,7 +223,8 @@ def start(screen):
                 if event.key == K_ESCAPE:
                     pygame.quit()
                     sys.exit()
-                return
+                if event.key == K_RETURN:
+                    return
             
 # ブロック、次ブロック、ボード、記録の初期化
 def initialize_game():
@@ -331,58 +333,38 @@ def gameover(screen, record):
 
                 if event.key == K_r:
                     return
+
+def pause(screen, board, block_color):
+    pygame.draw.rect(screen, (50, 50, 50), Rect(65, 32, 35*MAX_COL, 35*MAX_ROW))
+    font1 = pygame.font.Font(None, 100)
+    text1 = font1.render("PAUSE", True, (255, 255, 255))
+    font2 = pygame.font.Font(None, 30)
+    text2 = font2.render("Press P to resume", True, (255, 255, 255))
+    text3 = font2.render("Press Q to start new game", True, (255, 255, 255))
+    screen.blit(text1, [120, 200])
+    screen.blit(text2, [120, 300])
+    screen.blit(text3, [120, 350])
+    pygame.display.update()
+    
+    while(1):
+        pygame.time.wait(50)
+        for event in pygame.event.get():
+            if event.type == QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == KEYDOWN:
+                if event.key == K_ESCAPE:
+                    pygame.quit()
+                    sys.exit()
+
+                if event.key == K_p:
+                    draw_board(screen, board, block_color)
+                    pygame.display.update()
+                    return 0
                 
-def pause(screen, board, block_color):
-    pygame.draw.rect(screen, (50, 50, 50), Rect(65, 32, 35*MAX_COL, 35*MAX_ROW))
-    font1 = pygame.font.Font(None, 100)
-    text1 = font1.render("PAUSE", True, (255, 255, 255))
-    font2 = pygame.font.Font(None, 30)
-    text2 = font2.render("Press P to resume", True, (255, 255, 255))
-    screen.blit(text1, [120, 200])
-    screen.blit(text2, [120, 300])
-    pygame.display.update()
-    
-    while(1):
-        pygame.time.wait(50)
-        for event in pygame.event.get():
-            if event.type == QUIT:
-                pygame.quit()
-                sys.exit()
-            if event.type == KEYDOWN:
-                if event.key == K_ESCAPE:
-                    pygame.quit()
-                    sys.exit()
-
-                if event.key == K_p:
-                    draw_board(screen, board, block_color)
-                    pygame.display.update()
-                    return
-
-def pause(screen, board, block_color):
-    pygame.draw.rect(screen, (50, 50, 50), Rect(65, 32, 35*MAX_COL, 35*MAX_ROW))
-    font1 = pygame.font.Font(None, 100)
-    text1 = font1.render("PAUSE", True, (255, 255, 255))
-    font2 = pygame.font.Font(None, 30)
-    text2 = font2.render("Press P to resume", True, (255, 255, 255))
-    screen.blit(text1, [120, 200])
-    screen.blit(text2, [120, 300])
-    pygame.display.update()
-    
-    while(1):
-        pygame.time.wait(50)
-        for event in pygame.event.get():
-            if event.type == QUIT:
-                pygame.quit()
-                sys.exit()
-            if event.type == KEYDOWN:
-                if event.key == K_ESCAPE:
-                    pygame.quit()
-                    sys.exit()
-
-                if event.key == K_p:
-                    draw_board(screen, board, block_color)
-                    pygame.display.update()
-                    return
+                # restart
+                if event.key == K_r:
+                    return 1
 
 def hold(block, next_block, hold_block, record):
     # no block in hold
@@ -538,7 +520,9 @@ def main():
                 
                 # pause
                 if event.key == K_p:
-                    pause(screen, board, block_color) 
+                    restart_flag = pause(screen, board, block_color) 
+                    if restart_flag == 1:
+                        board, record, block, next_block, hold_block = initialize_game()
                 
                 # hold
                 if event.key == K_d or event.key == K_h:
