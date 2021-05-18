@@ -11,7 +11,9 @@ N-クイーン問題を得プログラム
 
 ## pong.ipynb
 
-pygame練習用。Pongゲーム
+pygame練習用。Pongゲーム．壁打ち
+
+![Screenshot from 2021-05-19 02-34-51](https://user-images.githubusercontent.com/50891738/118698063-f2786800-b84a-11eb-84c9-2712b9e44312.png)
 
 ## tetoris.ipynb/.py
 
