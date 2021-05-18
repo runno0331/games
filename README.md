@@ -16,3 +16,4 @@ pygame練習用。Pongゲーム
 ## tetoris.ipynb/.py
 
 テトリスプログラム。pygame必要
+![image](https://user-images.githubusercontent.com/50891738/118697459-43d42780-b84a-11eb-89bd-9a2f3940b8c0.png)
